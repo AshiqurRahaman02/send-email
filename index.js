@@ -1,10 +1,13 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 require("dotenv").config();
 
 const app = express();
 
+app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -16,6 +19,10 @@ const transporter = nodemailer.createTransport({
     pass: process.env.password
   }
 });
+
+app.get('/', (req, res) =>{
+  res.status(200).send('Welcome to Send Email')
+})
 
 // Endpoint to handle sending email
 app.post('/send-email', (req, res) => {
@@ -33,10 +40,10 @@ app.post('/send-email', (req, res) => {
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-      res.status(500).send('Error sending email');
+      res.status(500).json({isError:true,massage:'Error sending email'})
     } else {
       console.log('Email sent: ' + info.response);
-      res.status(200).send('Email sent');
+      res.status(200).json({isError:false,massage:'Email sent'});
     }
   });
 });
